@@ -1,1 +1,1 @@
-"""must exist to make this directory a package"""
+"""must exist to make this directory a package (addressable)"""
