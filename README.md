@@ -1,5 +1,5 @@
 # Bazel-Ruby-Gen
-Running ruby programs with ruby ... within Bazel
+Running ruby programs with ruby ... within Bazel  
 Uses prebuild ruby if possible or builds one
 
 # Structure  
