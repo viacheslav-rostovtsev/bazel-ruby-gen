@@ -1,6 +1,6 @@
 """
 exercicing the binaries of ruby sources
-kicking the tires on the state of the 
+kicking the tires with the --version
 """
 
 def _run_ruby_gemver_impl(ctx):
