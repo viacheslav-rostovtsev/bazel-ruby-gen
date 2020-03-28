@@ -36,7 +36,8 @@ filegroup(
   name = "rainbow_group",
   srcs = glob([
     "{gems}/**/*.rb"
-  ])
+  ]),
+  visibility = ["//visibility:public"],
 )
 """.format(gems = gems_dir)
     ctx.file("BUILD.bazel", build_bazel)

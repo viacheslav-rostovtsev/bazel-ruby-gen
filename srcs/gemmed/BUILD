@@ -19,7 +19,6 @@ run_ruby_bin_withgem (
   ruby_file = "//srcs/gemmed:rainbow_gem.rb",
   gem_entrypoint = "@rainbow_gem//:gems/rainbow-3.0.0/lib/rainbow.rb",
   gem_files = "@rainbow_gem//:rainbow_group",
-
 )
 
 # Running the gemmed source locally
