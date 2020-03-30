@@ -5,7 +5,7 @@ kicking the tires with the --version
 
 def _run_ruby_gemver_impl(ctx):
   # declare the output of our rule,
-  dec_file = ctx.actions.declare_file("ruby_gem_version")
+  dec_file = ctx.actions.declare_file(ctx.attr.name)
   
   # note that the shell comand must be written in terms of dependencies and results
   ctx.actions.run_shell(
@@ -35,7 +35,7 @@ run_ruby_gemver = rule(
 
 def _run_ruby_binver_impl(ctx):
   # declare the output of our rule,
-  run_result_file = ctx.actions.declare_file("ruby_bin_version")
+  run_result_file = ctx.actions.declare_file(ctx.attr.name)
   
   # note that the shell comand must be written in terms of dependencies and results
   ctx.actions.run_shell(

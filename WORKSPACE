@@ -1,9 +1,7 @@
 workspace(name = "ruby_example_workspace")
 
 load ("//repo_rules:ruby_binaries.bzl", "ruby_bin")
-load ("//repo_rules:rainbow.bzl", "rainbow_gem")
-
-#bind (name = "external/rainbow_gem/gems/rainbow-3.0.0/lib/rainbow.rb", actual = "@rainbow_gem//:gems/rainbow-3.0.0/lib/rainbow.rb")
+load ("//repo_rules:ruby_gems.bzl", "ruby_gem")
 
 ##
 # expose the dynamically generated workspace and call it ruby_binaries
@@ -15,6 +13,8 @@ ruby_bin (
   prebuilt_rubys = ["//prebuilt:ruby-2.6.5_linux_x86_64.tar.gz"],
 )
 
-rainbow_gem (
-  name = "rainbow_gem"
+ruby_gem (
+  name = "rainbow-3.0.0",
+  gem_name = "rainbow",
+  version = "3.0.0",
 )

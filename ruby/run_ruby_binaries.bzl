@@ -1,8 +1,12 @@
 """ running a ruby file with ruby executable """
 
 def _run_ruby_bin_impl(ctx):
+  run_result_file_name = ctx.attr.out_file_name
+  if not(run_result_file_name and run_result_file_name.strip()):
+    run_result_file_name = ctx.attr.name
+  
   # declare the output of our rule,
-  run_result_file = ctx.actions.declare_file("ruby_run_result")
+  run_result_file = ctx.actions.declare_file(run_result_file_name)
   
   # note that the shell comand must be written in terms of dependencies and results
   # also note the difference between tools and inputs
@@ -33,17 +37,22 @@ run_ruby_bin = rule(
     "ruby_file": attr.label(
       allow_single_file = [".rb"],
       mandatory = True,
-    )
+    ),
+    "out_file_name": attr.string(),
   }
 )
 
 def _run_ruby_bin_withgem_impl(ctx):
+  run_result_file_name = ctx.attr.out_file_name
+  if not(run_result_file_name and run_result_file_name.strip()):
+    run_result_file_name = ctx.attr.name
+
   # declare the output of our rule,
-  run_result_file = ctx.actions.declare_file("ruby_run_result")
+  run_result_file = ctx.actions.declare_file(run_result_file_name)
   
   all_inputs = ctx.files.gem_files[:]
   all_inputs.append(ctx.file.ruby_file)
-
+  
   # note that the shell comand must be written in terms of dependencies and results
   # also note the difference between tools and inputs
   ctx.actions.run_shell(
@@ -71,15 +80,15 @@ run_ruby_bin_withgem = rule(
       executable = True,
       cfg = "host",
     ),
-    "gem_entrypoint": attr.label(
-        default = Label("@rainbow_gem//:gems/rainbow-3.0.0/lib/rainbow.rb"),
-        allow_single_file = True,
-        executable = False,
-        cfg = "host",
-    ),
     "ruby_file": attr.label(
       allow_single_file = [".rb"],
       mandatory = True,
+    ),
+    "out_file_name": attr.string(),
+    "gem_entrypoint": attr.label(
+        allow_single_file = True,
+        executable = False,
+        cfg = "host",
     ),
     "gem_files": attr.label(
       #allow_empty = False,

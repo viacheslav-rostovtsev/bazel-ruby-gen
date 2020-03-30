@@ -10,5 +10,5 @@ run_ruby_binver(
 )
 
 check_gems_gemfile(
-  name = "check_gem"
+  name = "check_gem_gemfile"
 )
