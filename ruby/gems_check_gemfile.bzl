@@ -18,7 +18,7 @@ check_gems_gemfile = rule(
     implementation = _check_gems_gemfile_impl,
     attrs = {
         "data_file": attr.label(
-            default = Label("@rainbow-3.0.0//:gems/rainbow-3.0.0/Gemfile"),
+            default = Label("@rainbow//:gems/rainbow-3.0.0/Gemfile"),
             allow_single_file = True,
             executable = False,
             cfg = "host",

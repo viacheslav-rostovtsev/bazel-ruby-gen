@@ -11,11 +11,57 @@ def _ruby_bin_impl(ctx):
   # a folder to extract the sources into
   srcs_dir = "srcs"
 
+  dir_bzl = """
+'''
+stuff
+'''
+
+def _dir_rule_ws_impl(ctx):
+    output_dir = ctx.actions.declare_directory("lib/ruby/ruby_bazel_libroot")
+
+    ctx.actions.run_shell(
+        command="mkdir -p {output_dir}".format(output_dir = output_dir),
+        outputs=[output_dir])
+
+    return [DefaultInfo(files = depset(direct = [output_dir]))]
+
+dir_rule_ws = rule (
+    implementation = _dir_rule_ws_impl
+)
+  """
+  ctx.file("dir_rule_ws.bzl", dir_bzl)
+
   # dynamically generate a build file for the new workspace
-  build_bazel = """exports_files(glob(include = ["{srcs_dir}/bin/**", "bin/*", "lib/**"], exclude_directories = 0))""".format(srcs_dir = srcs_dir)
+  build_bazel = """
+exports_files(glob(include = ["{srcs_dir}/bin/**", "bin/*", "lib/**"], exclude_directories = 0))
+load(":dir_rule_ws.bzl", "dir_rule_ws")
+
+filegroup(
+  name = "ruby_libs_allfiles",
+  srcs = glob([
+    "lib/**/*"
+  ]),
+  visibility = ["//visibility:public"],
+)
+
+filegroup(
+  name = "ruby_libroots",
+  srcs = glob([
+    "lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot"
+  ]),
+  visibility = ["//visibility:public"],
+)
+
+dir_rule_ws(
+  name = "dir_rule_ws",
+  visibility = ["//visibility:public"],
+)
+
+""".format(srcs_dir = srcs_dir)
 
   # First try using the prebuilt version
   os_name = ctx.os.name
+  working_prebuild_located = False
   for prebuilt_ruby in ctx.attr.prebuilt_rubys:
       if prebuilt_ruby.name.find(os_name) < 0:
           continue
@@ -26,27 +72,27 @@ def _ruby_bin_impl(ctx):
       _execute_and_check_result(ctx, ["rm", "-rf", tmp], quiet = False)
       if res.return_code == 0:
           ctx.extract(archive = prebuilt_ruby, stripPrefix = ctx.attr.strip_prefix)
+          working_prebuild_located = True
 
-          # BUILD.bazel only created on success
-          ctx.file("BUILD.bazel", build_bazel)
-          return
-
-  # if there aren't any suitable or working prebuilts download the sources and build one
-  ctx.download_and_extract(
-    url = ctx.attr.urls,
-    stripPrefix = ctx.attr.strip_prefix,
-    output = srcs_dir,
-  )
+  if not working_prebuild_located:
+    # if there aren't any suitable or working prebuilts download the sources and build one
+    ctx.download_and_extract(
+      url = ctx.attr.urls,
+      stripPrefix = ctx.attr.strip_prefix,
+      output = srcs_dir,
+    )
   
-  # configuring no gem support, no docs and installing inside our workspace
-  root_path = ctx.path(".")
-  _execute_and_check_result(ctx, ["./configure", "--disable-rubygems", "--disable-install-doc", "--prefix=%s" % root_path.realpath], working_directory = srcs_dir, quiet = False)
-  
-  # nothing special about make and make install
-  _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
-  _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
+    # configuring no gem support, no docs and installing inside our workspace
+    root_path = ctx.path(".")
+    _execute_and_check_result(ctx, ["./configure", "--disable-rubygems", "--disable-install-doc", "--prefix=%s" % root_path.realpath, "--with-ruby-version=ruby_bazel_libroot"], working_directory = srcs_dir, quiet = False)
+    
+    # nothing special about make and make install
+    _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
+    _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
-  # BUILD.bazel only created on success
+  ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "ruby_bazel_libroot")
+
+  # BUILD.bazel creation
   ctx.file("BUILD.bazel", build_bazel)
 
 ##

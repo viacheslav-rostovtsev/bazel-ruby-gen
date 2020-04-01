@@ -14,7 +14,13 @@ ruby_bin (
 )
 
 ruby_gem (
-  name = "rainbow-3.0.0",
+  name = "rainbow",
   gem_name = "rainbow",
   version = "3.0.0",
+)
+
+ruby_gem (
+  name = "awesome_print",
+  gem_name = "awesome_print",
+  version = "2.0.0.pre2",
 )

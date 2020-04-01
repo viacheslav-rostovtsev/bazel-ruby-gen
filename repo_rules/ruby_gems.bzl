@@ -38,10 +38,19 @@ filegroup(
   ]),
   visibility = ["//visibility:public"],
 )
-""".format(gems_gem_dir = gems_gem_dir, gem_namever = gem_namever)
-    
-    ctx.file("BUILD.bazel", build_bazel)
 
+filegroup(
+  name = "gem_libroots",
+  srcs = glob([
+    "{gems_gem_dir}/lib/.ruby_bazel_libroot"
+  ]),
+  visibility = ["//visibility:public"],
+)
+
+""".format(gems_gem_dir = gems_gem_dir)
+    
+    ctx.file("{gems_gem_dir}/lib/.ruby_bazel_libroot".format(gems_gem_dir = gems_gem_dir), "ruby_bazel_libroot")
+    ctx.file("BUILD.bazel", build_bazel)
 
 ruby_gem = repository_rule(
     implementation = _ruby_gem_impl,
