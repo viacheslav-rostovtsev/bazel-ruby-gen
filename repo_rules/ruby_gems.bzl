@@ -4,7 +4,7 @@ ruby gem dependecies
 
 def _ruby_gem_impl(ctx):
     print(ctx.attr.ruby_bin.workspace_root)
-    print("os_name = {os_name}".format(os_name = os_name))
+    print("os_name = {os_name}".format(os_name = ctx.os.name))
     # all_libroots = ctx.files.ruby_libroots[:]
     # for lr in ctx.attr:
     #   print(lr)
@@ -72,7 +72,7 @@ filegroup(
 
 """.format(gems_gem_dir = gems_gem_dir)
     
-    ctx.file("{gems_gem_dir}/lib/.ruby_bazel_libroot".format(gems_gem_dir = gems_gem_dir), "my os name = {osname}".format(osname = ctx.os_name))
+    ctx.file("{gems_gem_dir}/lib/.ruby_bazel_libroot".format(gems_gem_dir = gems_gem_dir), "my os name = {osname}".format(osname = ctx.os.name))
     ctx.file("BUILD.bazel", build_bazel)
 
 ruby_gem = repository_rule(
