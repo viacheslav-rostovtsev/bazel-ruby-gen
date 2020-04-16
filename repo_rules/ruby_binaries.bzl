@@ -61,6 +61,9 @@ dir_rule_ws(
 
   # First try using the prebuilt version
   os_name = ctx.os.name
+
+  print("os_name = {os_name}".format(os_name = os_name))
+
   working_prebuild_located = False
   for prebuilt_ruby in ctx.attr.prebuilt_rubys:
       if prebuilt_ruby.name.find(os_name) < 0:
