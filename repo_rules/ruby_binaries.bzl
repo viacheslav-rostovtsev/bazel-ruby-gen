@@ -61,8 +61,9 @@ dir_rule_ws(
 
   # First try using the prebuilt version
   os_name = ctx.os.name
-
   print("os_name = {os_name}".format(os_name = os_name))
+
+
 
   working_prebuild_located = False
   for prebuilt_ruby in ctx.attr.prebuilt_rubys:
@@ -93,8 +94,8 @@ dir_rule_ws(
     _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
-  ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "ruby_bazel_libroot")
-  ctx.file("lib/ruby/ruby_bazel_libroot/x86_64-linux/.ruby_bazel_libroot", "ruby_bazel_libroot")
+  ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", os_name)
+  ctx.file("lib/ruby/ruby_bazel_libroot/x86_64-linux/.ruby_bazel_libroot", os_name)
 
   # BUILD.bazel creation
   ctx.file("BUILD.bazel", build_bazel)
