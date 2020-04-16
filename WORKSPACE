@@ -24,3 +24,27 @@ ruby_gem (
   gem_name = "awesome_print",
   version = "2.0.0.pre2",
 )
+
+ruby_gem (
+  name = "jaro_winkler",
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
+  gem_name = "jaro_winkler",
+  version = "1.5.4",
+)
+
+ruby_gem (
+  name = "ffi",
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
+  gem_name = "ffi",
+  version = "1.12.2",
+)
+
+ruby_gem (
+  name = "nokogiri",
+  gem_name = "nokogiri",
+  version = "1.10.9",
+)

@@ -39,7 +39,7 @@ load(":dir_rule_ws.bzl", "dir_rule_ws")
 filegroup(
   name = "ruby_libs_allfiles",
   srcs = glob([
-    "lib/**/*"
+    "lib/**/*", "include/**/*"
   ]),
   visibility = ["//visibility:public"],
 )

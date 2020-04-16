@@ -6,7 +6,7 @@ rm BUILD.bazel
 rm WORKSPACE
 rm *.bzl
 
-tar -czf ruby-2.6.5_linux_x86_64.tar.gz ruby-2.6.5/bin ruby-2.6.5/lib ruby-2.6.5/srcs/bin
+tar -czf ruby-2.6.5_linux_x86_64.tar.gz ruby-2.6.5/bin ruby-2.6.5/lib ruby-2.6.5/include
 
 cp ./ruby-2.6.5_linux_x86_64.tar.gz ~/src/bazel-ruby-gen/prebuilt/
 

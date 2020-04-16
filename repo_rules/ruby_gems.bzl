@@ -3,6 +3,11 @@ ruby gem dependecies
 """
 
 def _ruby_gem_impl(ctx):
+    print(ctx.attr.ruby_bin.workspace_root)
+    # all_libroots = ctx.files.ruby_libroots[:]
+    # for lr in ctx.attr:
+    #   print(lr)
+
     gem_name = ctx.attr.gem_name
     version = ctx.attr.version
 
@@ -27,6 +32,15 @@ def _ruby_gem_impl(ctx):
         archive = gem_data_file,
         output = gems_gem_dir,
     )
+    
+    gem_ext_dir = "{gems_gem_dir}/ext".format(gems_gem_dir = gems_gem_dir)
+    res = ctx.execute(["test","-f", gem_ext_dir])
+
+    if (res):
+      exts_dir = "site_ruby"
+      exts_gem_dir = "{exts_dir}/{gem_namever}".format(exts_dir = exts_dir, gem_namever = gem_namever)
+      # print(ctx.file.ruby_bin)
+
 
     build_bazel = """
 exports_files(glob(include = ["{gems_gem_dir}/**/*"], exclude_directories = 0))
@@ -34,7 +48,7 @@ exports_files(glob(include = ["{gems_gem_dir}/**/*"], exclude_directories = 0))
 filegroup(
   name = "gem_filegroup",
   srcs = glob([
-    "{gems_gem_dir}/**/*.rb"
+    "{gems_gem_dir}/**/*"
   ]),
   visibility = ["//visibility:public"],
 )
@@ -47,6 +61,14 @@ filegroup(
   visibility = ["//visibility:public"],
 )
 
+filegroup(
+  name = "gem_extconfs",
+  srcs = glob([
+   "{gems_gem_dir}/**/extconf.rb"
+  ]),
+  visibility = ["//visibility:public"],
+)
+
 """.format(gems_gem_dir = gems_gem_dir)
     
     ctx.file("{gems_gem_dir}/lib/.ruby_bazel_libroot".format(gems_gem_dir = gems_gem_dir), "ruby_bazel_libroot")
@@ -55,7 +77,33 @@ filegroup(
 ruby_gem = repository_rule(
     implementation = _ruby_gem_impl,
     attrs = {
-        "gem_name": attr.string(mandatory = True),
-        "version": attr.string(mandatory = True),
+      "ruby_bin": attr.label(
+        default = Label("@ruby_binaries//:bin/ruby"),
+        allow_single_file = True,
+        executable = True,
+        cfg = "host",
+      ),
+      "ruby_libfiles": attr.label(
+        default = Label("@ruby_binaries//:ruby_libs_allfiles"),
+      ),
+      "ruby_libroots": attr.label(
+        default = Label("@ruby_binaries//:ruby_libroots"),
+      ),
+      "gem_name": attr.string(mandatory = True),
+      "version": attr.string(mandatory = True),
     }
 )
+
+##
+# Runs a command and either fails or returns an ExecutionResult
+#
+def _execute_and_check_result(ctx, command, **kwargs):
+  res = ctx.execute(command, **kwargs)
+  if res.return_code != 0:
+      fail("""Failed to execute command: `{command}`{newline}Exit Code: {code}{newline}STDERR: {stderr}{newline}""".format(
+          command = command,
+          code = res.return_code,
+          stderr = res.stderr,
+          newline = "\n"
+      ))
+  return res
