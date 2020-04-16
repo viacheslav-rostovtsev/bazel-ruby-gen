@@ -24,16 +24,20 @@ def _ruby_gem_library_impl(ctx):
 
   # RUBY_BIN="`readlink -f external/ruby_binaries/bin/ruby`"
 
-  all_inputs = ctx.files.srcs[:]
-  for file in all_inputs:
-    print(file.path)
+  all_inputs = ctx.files.srcs + ctx.files.ruby_libfiles
+  all_libroots = ctx.files.ruby_libroots + ctx.files.lib_roots
+
+  lib_string = ""
+  for file in all_libroots:
+    lib_string += "-I {lib_dir} ".format(lib_dir = file.dirname)
   
   ctx.actions.run_shell(
     tools = [ctx.file.ruby_bin],
     inputs = all_inputs,
-    command = "strace -f -o fuckme.log {ruby_bin_path} {extconf_path}".format(
+    command = "strace -f -o fuckme.log {ruby_bin_path} {lib_string} {extconf_path}".format(
       make_dir = make_dir.path, 
       ruby_bin_path = ctx.file.ruby_bin.path, 
+      lib_string = lib_string,
       extconf_path = ext_conf.path
     ),
     execution_requirements = {
@@ -73,6 +77,12 @@ ruby_gem_library = rule(
       allow_single_file = True,
       executable = True,
       cfg = "host"),
+    "ruby_libfiles": attr.label(
+      default = Label("@ruby_binaries//:ruby_libs_allfiles"),
+    ),
+    "ruby_libroots": attr.label(
+      default = Label("@ruby_binaries//:ruby_libroots"),
+    ),
     "lib_roots": attr.label(),
     "ext_confs": attr.label(),
   }

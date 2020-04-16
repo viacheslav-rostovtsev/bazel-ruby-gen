@@ -47,7 +47,7 @@ filegroup(
 filegroup(
   name = "ruby_libroots",
   srcs = glob([
-    "lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot"
+    "lib/**/.ruby_bazel_libroot",
   ]),
   visibility = ["//visibility:public"],
 )
@@ -91,6 +91,7 @@ dir_rule_ws(
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
   ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "ruby_bazel_libroot")
+  ctx.file("lib/ruby/ruby_bazel_libroot/x86_64-linux/.ruby_bazel_libroot", "ruby_bazel_libroot")
 
   # BUILD.bazel creation
   ctx.file("BUILD.bazel", build_bazel)
