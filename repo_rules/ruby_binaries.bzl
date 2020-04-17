@@ -65,7 +65,7 @@ dir_rule_ws(
   prebuilt_selection_log = ""
 
   if ctx.attr.prebuilt_rubys.length == 0:
-    prebuilt_selection_log = "No prebuilt rubies supplied".
+    prebuilt_selection_log = "No prebuilt rubies supplied"
   else  
     prebuilt_selection_log = "{count} prebuilt rubies supplied. Filtering on the os name {os_name}".format(count = ctx.attr.prebuilt_rubys.length, os_name=os_name)
 
