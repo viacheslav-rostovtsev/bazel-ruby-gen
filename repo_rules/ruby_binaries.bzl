@@ -61,14 +61,22 @@ dir_rule_ws(
 
   # First try using the prebuilt version
   os_name = ctx.os.name
-  print("os_name = {os_name}".format(os_name = os_name))
 
+  prebuilt_selection_log = ""
 
+  if ctx.attr.prebuilt_rubys.length == 0:
+    prebuilt_selection_log = "No prebuilt rubies supplied".
+  else  
+    prebuilt_selection_log = "{count} prebuilt rubies supplied. Filtering on the os name {os_name}".format(count = ctx.attr.prebuilt_rubys.length, os_name=os_name)
 
   working_prebuild_located = False
   for prebuilt_ruby in ctx.attr.prebuilt_rubys:
+      prebuilt_selection_log += "\nTrying prebuilt ruby @ {prebuilt_ruby}".format(prebuilt_ruby = prebuilt_ruby)
+
       if prebuilt_ruby.name.find(os_name) < 0:
+          prebuilt_selection_log += "\nPrebuilt ruby @ {prebuilt_ruby}: does not contain os name {os_name}".format(prebuilt_ruby = prebuilt_ruby, os_name=os_name)
           continue
+
       tmp = "ruby_tmp"
       _execute_and_check_result(ctx, ["mkdir", tmp], quiet = False)
       ctx.extract(archive = prebuilt_ruby, stripPrefix = ctx.attr.strip_prefix, output = tmp)
@@ -77,6 +85,10 @@ dir_rule_ws(
       if res.return_code == 0:
           ctx.extract(archive = prebuilt_ruby, stripPrefix = ctx.attr.strip_prefix)
           working_prebuild_located = True
+          prebuilt_selection_log += "Prebuilt ruby @ {prebuilt_ruby}: execution succeeded. Chosen.".format(prebuilt_ruby = prebuilt_ruby)
+      else:
+          prebuilt_selection_log += "Prebuilt ruby @ {prebuilt_ruby}: execution failed code {res_code}; Error:\n{err}".format(prebuilt_ruby = prebuilt_ruby, res_code=res.return_code, err=res.stderr)
+        
 
   if not working_prebuild_located:
     # if there aren't any suitable or working prebuilts download the sources and build one
@@ -94,8 +106,9 @@ dir_rule_ws(
     _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
-  ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", os_name)
-  ctx.file("lib/ruby/ruby_bazel_libroot/x86_64-linux/.ruby_bazel_libroot", os_name)
+  ctx.file("prebuilt_selection.log", prebuilt_selection_log)
+  ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "")
+  ctx.file("lib/ruby/ruby_bazel_libroot/x86_64-linux/.ruby_bazel_libroot", "")
 
   # BUILD.bazel creation
   ctx.file("BUILD.bazel", build_bazel)
