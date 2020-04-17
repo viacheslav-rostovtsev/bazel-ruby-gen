@@ -64,10 +64,10 @@ dir_rule_ws(
 
   prebuilt_selection_log = ""
 
-  if ctx.attr.prebuilt_rubys.length == 0:
+  if len(ctx.attr.prebuilt_rubys) == 0:
     prebuilt_selection_log = "No prebuilt rubies supplied"
   else:
-    prebuilt_selection_log = "{count} prebuilt rubies supplied. Filtering on the os name {os_name}".format(count = ctx.attr.prebuilt_rubys.length, os_name=os_name)
+    prebuilt_selection_log = "{count} prebuilt rubies supplied. Filtering on the os name {os_name}".format(count = len(ctx.attr.prebuilt_rubys), os_name=os_name)
 
   working_prebuild_located = False
   for prebuilt_ruby in ctx.attr.prebuilt_rubys:
