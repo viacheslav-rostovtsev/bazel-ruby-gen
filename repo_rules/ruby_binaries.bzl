@@ -66,7 +66,7 @@ dir_rule_ws(
 
   if ctx.attr.prebuilt_rubys.length == 0:
     prebuilt_selection_log = "No prebuilt rubies supplied"
-  else  
+  else:
     prebuilt_selection_log = "{count} prebuilt rubies supplied. Filtering on the os name {os_name}".format(count = ctx.attr.prebuilt_rubys.length, os_name=os_name)
 
   working_prebuild_located = False
@@ -95,7 +95,7 @@ dir_rule_ws(
     ctx.download_and_extract(
       url = ctx.attr.urls,
       stripPrefix = ctx.attr.strip_prefix,
-      output = srcs_dir,
+      output = srcs_dir
     )
   
     # configuring no gem support, no docs and installing inside our workspace
