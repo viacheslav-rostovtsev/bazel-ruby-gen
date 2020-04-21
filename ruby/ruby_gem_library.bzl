@@ -1,6 +1,7 @@
 """
 """
 load(":ruby_library_info.bzl", "RubyLibraryInfo")
+load("//ruby/private:providers.bzl", "CgoContextData")
 
 def _ruby_gem_library_impl(ctx):
   print("=====================")
@@ -31,6 +32,44 @@ def _ruby_gem_library_impl(ctx):
   for file in all_libroots:
     lib_string += "-I {lib_dir} ".format(lib_dir = file.dirname)
   
+  cgo_context_data = ctx.attr.cgo_context_data[CgoContextData]
+
+  env = dict(cgo_context_data.env)
+  cgo_tools = cgo_context_data.cgo_tools
+  tool_paths = [
+      cgo_tools.c_compiler_path,
+      cgo_tools.ld_executable_path,
+      cgo_tools.ld_static_lib_path,
+      cgo_tools.ld_dynamic_lib_path,
+  ]
+
+  print("cgo_cc = {toolpath}".format(toolpath = cgo_tools.c_compiler_path))
+  print("cgo_ld = {toolpath}".format(toolpath = cgo_tools.ld_executable_path))
+  print("cgo_ldsl = {toolpath}".format(toolpath = cgo_tools.ld_static_lib_path))
+  print("cgo_lddl = {toolpath}".format(toolpath = cgo_tools.ld_dynamic_lib_path))
+
+
+  path_set = {}
+  if "PATH" in env:
+      for p in env["PATH"].split(ctx.configuration.host_path_separator):
+          path_set[p] = None
+  for tool_path in tool_paths:
+      tool_dir, _, _ = tool_path.rpartition("/")
+      path_set[tool_dir] = None
+  paths = sorted(path_set.keys())
+  if ctx.configuration.host_path_separator == ":":
+      # HACK: ":" is a proxy for a UNIX-like host.
+      # The tools returned above may be bash scripts that reference commands
+      # in directories we might not otherwise include. For example,
+      # on macOS, wrapped_ar calls dirname.
+      if "/bin" not in path_set:
+          paths.append("/bin")
+      if "/usr/bin" not in path_set:
+          paths.append("/usr/bin")
+  env["PATH"] = ctx.configuration.host_path_separator.join(paths)
+
+  print("env.path = {epath}".format(epath = env["PATH"]))
+
   ctx.actions.run_shell(
     tools = [ctx.file.ruby_bin],
     inputs = all_inputs,
@@ -46,7 +85,8 @@ def _ruby_gem_library_impl(ctx):
       "no-remote": "1",
       "local": "1",
     },
-    outputs=[make_dir],
+    env = env,
+    outputs = [make_dir],
   )
 
   return [
@@ -72,6 +112,9 @@ ruby_gem_library = rule(
     "srcs": attr.label_list(allow_files = True),
     "deps": attr.label_list(
       providers = [RubyLibraryInfo]
+    ),
+    "cgo_context_data": attr.label(
+      default = Label("//ruby/private:cgo_context_data")
     ),
     "ruby_bin": attr.label(
       allow_single_file = True,
