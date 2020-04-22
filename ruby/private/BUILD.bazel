@@ -1,4 +1,6 @@
-load(":context.bzl", "cgo_context_data")
+load(":c_context.bzl", "cgo_context_data")
+load(":ruby_context.bzl", "ruby_context")
+
 
 filegroup(
     name = "all_rules",
@@ -16,4 +18,12 @@ filegroup(
 cgo_context_data(
     name = "cgo_context_data",
     visibility = ["//visibility:public"],
+)
+
+ruby_context(
+  name = "ruby_context",
+  visibility = ["//visibility:public"],
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
 )

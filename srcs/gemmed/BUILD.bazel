@@ -1,0 +1,86 @@
+load ("//ruby:ruby_binary.bzl", "ruby_binary")
+load ("//ruby:ruby_gem_library.bzl", "ruby_gem_library")
+
+# run file with a single gem dependency on rainbow
+ruby_binary(
+  name = "singlegem_sh",
+  entrypoint = "//srcs/gemmed:singlegem/singlegem.rb",
+  deps =[":lib_rainbow"],
+)
+
+# run file with multiple gems dependencies
+ruby_binary (
+  name = "multigem_sh",
+  entrypoint = "//srcs/gemmed:multigem/multigem.rb",
+  deps = [":lib_rainbow", ":lib_awesome_print"],
+)
+
+# run file with transitive gems dependencies
+ruby_binary(
+  name = "transitive_deps_sh",
+  entrypoint = "//srcs/gemmed:gemchain/gemchain-uiux.rb",
+  deps =[":lib_uiux"],
+)
+
+#lib_rainbow
+ruby_gem_library(
+  name = "lib_rainbow",
+  gem_name = "rainbow",
+  srcs = ["@rainbow//:gem_filegroup"],
+  lib_roots = "@rainbow//:gem_libroots",
+  ext_confs = "@rainbow//:gem_extconfs",
+)
+
+#lib_awesome_print
+ruby_gem_library(
+  name = "lib_awesome_print",
+  gem_name = "awesome_print",
+  srcs = ["@awesome_print//:gem_filegroup"],
+  lib_roots = "@awesome_print//:gem_libroots",
+  ext_confs = "@awesome_print//:gem_extconfs",
+)
+
+#lib_uiux
+ruby_gem_library(
+  name = "lib_uiux",
+  gem_name = "uiux",
+  srcs = ["@uiux//:gem_filegroup"],
+  deps = [":lib_rainbow", ":lib_awesome_print"],
+  lib_roots = "@uiux//:gem_libroots",
+  ext_confs = "@uiux//:gem_extconfs",
+)
+
+#terminal-table
+ruby_binary(
+  name = "terminal-table_sh",
+  entrypoint = "//srcs/gemmed:gemchain/gemchain-terminal-table.rb",
+  deps =[":lib_terminal-table"],
+)
+
+#lib_terminal-table
+ruby_gem_library(
+  name = "lib_terminal-table",
+  gem_name = "terminal-table",
+  srcs = ["@terminal-table//:gem_filegroup"],
+  deps = [":lib_unicode-display_width"],
+  lib_roots = "@terminal-table//:gem_libroots",
+  ext_confs = "@terminal-table//:gem_extconfs",
+)
+
+#lib_unicode-display_width 
+ruby_gem_library(
+  name = "lib_unicode-display_width",
+  gem_name = "unicode-display_width",
+  srcs = ["@unicode-display_width//:gem_filegroup"],
+  lib_roots = "@unicode-display_width//:gem_libroots",
+  ext_confs = "@unicode-display_width//:gem_extconfs",
+)
+
+#lib_zlib
+ruby_gem_library(
+  name = "lib_zlib",
+  gem_name = "zlib",
+  srcs = ["@zlib//:gem_filegroup"],
+  lib_roots = "@zlib//:gem_libroots",
+  ext_confs = "@zlib//:gem_extconfs",
+)

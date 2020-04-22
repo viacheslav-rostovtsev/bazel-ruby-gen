@@ -25,7 +25,7 @@ run_ruby_gemver = rule(
   implementation = _run_ruby_gemver_impl,
   attrs = {
     "dependency": attr.label(
-      default = Label("@ruby_binaries//:srcs/bin/gem"),
+      default = Label("@ruby_binaries//:bin/gem"),
       allow_single_file = True,
       executable = True,
       cfg = "host",

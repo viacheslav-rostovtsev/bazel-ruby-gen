@@ -1,0 +1,13 @@
+load ("//ruby:ruby_binary.bzl", "ruby_binary")
+
+# Running the hello_world file
+ruby_binary (
+  name = "ruby_hellow_sh",
+  entrypoint = ":hello_world.rb",
+)
+
+# Running the hello world file with a dependency on a Ruby StandardLib
+ruby_binary (
+  name = "ruby_hellolib_sh",
+  entrypoint = ":hello_ruby_lib.rb",
+)

@@ -1,0 +1,18 @@
+load ("//ruby:ruby_binary.bzl", "ruby_binary")
+load ("//ruby:ruby_gem_library.bzl", "ruby_gem_library")
+
+#noko
+ruby_binary(
+  name = "noko_sh",
+  entrypoint = ":nokogiri.rb",
+  deps =[":lib_noko"],
+)
+
+#lib_noko
+ruby_gem_library(
+  name = "lib_noko",
+  gem_name = "nokogiri",
+  srcs = ["@nokogiri//:gem_filegroup"],
+  lib_roots = "@nokogiri//:gem_libroots",
+  ext_confs = "@nokogiri//:gem_extconfs",
+)

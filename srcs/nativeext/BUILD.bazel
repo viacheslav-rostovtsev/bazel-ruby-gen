@@ -1,0 +1,34 @@
+load ("//ruby:ruby_binary.bzl", "ruby_binary")
+load ("//ruby:ruby_gem_library.bzl", "ruby_gem_library")
+
+# run file with a dependency on a gems with a native extension (jaro winkler has a fallback though)
+ruby_binary (
+  name = "run_jaro_winkler",
+  entrypoint = ":jaro_winkler/next_jaro_winkler.rb",
+  deps = [":lib_jaro_winkler"],
+)
+
+#lib_jaro_winkler
+ruby_gem_library(
+  name = "lib_jaro_winkler",
+  gem_name = "jaro_winkler",
+  srcs = ["@jaro_winkler//:gem_filegroup"],
+  lib_roots = "@jaro_winkler//:gem_libroots",
+  ext_confs = "@jaro_winkler//:gem_extconfs",
+)
+
+# run file with a dependency on a gems with a native extension with a native library
+ruby_binary (
+  name = "run_ffi",
+  entrypoint = ":lib_ffi/lib_ffi.rb",
+  deps = [":lib_ffi"],
+)
+
+#lib_ffi
+ruby_gem_library(
+  name = "lib_ffi",
+  gem_name = "ffi",
+  srcs = ["@ffi//:gem_filegroup"],
+  lib_roots = "@ffi//:gem_libroots",
+  ext_confs = "@ffi//:gem_extconfs",
+)

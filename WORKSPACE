@@ -43,8 +43,51 @@ ruby_gem (
   version = "1.12.2",
 )
 
+ruby_gem(
+  name = "mini_portile2",
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
+  gem_name = "mini_portile2",
+  version = "2.5.0",
+)
+
+ruby_gem(
+  name = "terminal-table",
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
+  gem_name = "terminal-table",
+  version = "1.8.0",
+)
+
+ruby_gem(
+  name = "unicode-display_width",
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
+  gem_name = "unicode-display_width",
+  version = "1.7.0",
+)
+
+ruby_gem(
+  name = "zlib",
+  ruby_bin = "@ruby_binaries//:bin/ruby",
+  ruby_libfiles = "@ruby_binaries//:ruby_libs_allfiles",
+  ruby_libroots = "@ruby_binaries//:ruby_libroots",
+  gem_name = "zlib",
+  version = "1.1.0",
+)
+
 ruby_gem (
   name = "nokogiri",
   gem_name = "nokogiri",
   version = "1.10.9",
 )
+
+ruby_gem (
+  name = "uiux",
+  gem_name = "uiux",
+  version = "0.2.7",
+)
+
