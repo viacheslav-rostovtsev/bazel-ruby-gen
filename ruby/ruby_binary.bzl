@@ -52,7 +52,7 @@ def _ruby_binary_impl(ctx):
   ctx.actions.run_shell(
     tools = [ruby_bin], 
     inputs = all_inputs,
-    command="ff{ruby_bin} {imports} {entrypoint} > {ruby_run_result}".format(
+    command="{ruby_bin} {imports} {entrypoint} > {ruby_run_result}".format(
       ruby_bin = ruby_bin_path, 
       imports = import_paths_string, 
       entrypoint = entrypoint_path,

@@ -26,6 +26,28 @@ def _ruby_gem_library_impl(ctx):
     # Same dependency also contains the Ruby StandardLibrary info packaged as RubyLibraryInfo
     ruby_standard_lib = ctx.attr.ruby_context[RubyLibraryInfo]
 
+    #~
+    # All dependencies combined form the depset
+    deps = [ruby_standard_lib] + [dep[RubyLibraryInfo] for dep in ctx.attr.deps]
+    deps_set = depset(
+      direct = [d.info for d in deps],
+      transitive = [d.deps for d in deps],
+    )
+
+    # From this depset we extract two things:
+    # 1. We take all the lib directories and ext directories and add them to the path
+    deps_import_strings = []
+    for dep in deps_set.to_list():
+      deps_import_strings.append("-I " + dep.lib_path.dirname)
+      if dep.ext_path:
+        deps_import_strings.append("-I " + dep.ext_path.dirname)
+    import_paths_string = " ".join(deps_import_strings)
+
+    # 2. all the library files join the program sources in the set of inputs
+    all_inputs = ctx.files.srcs[:]
+    for dep in deps_set.to_list():
+      all_inputs = all_inputs + dep.srcs  
+
     print("-----make_path--------")
     print(make_path)
     print("----------------------")
@@ -36,18 +58,6 @@ def _ruby_gem_library_impl(ctx):
 
     # assuming one ext_conf for now
     ext_conf = ctx.files.ext_confs[0]
-
-    # add ruby standard lib sources to inputs
-    all_inputs = ctx.files.srcs + ruby_standard_lib.info.srcs
-    
-    # add ruby standard lib libroot to path
-    all_libroots = ctx.files.lib_roots + [ruby_standard_lib.info.lib_path]
-
-    # form import arguments string
-    lib_string = ""
-    for file in all_libroots:
-      lib_string += "-I {lib_dir} ".format(lib_dir = file.dirname)
-    
     cgo_context_data = ctx.attr.cgo_context_data[CgoContextData]
 
     env = dict(cgo_context_data.env)
@@ -88,12 +98,12 @@ def _ruby_gem_library_impl(ctx):
 
     # RUBY_BIN="`readlink -f external/ruby_binaries/bin/ruby`"
     command = "strace -f -o strace.log {ruby_bin_path} {lib_string} {extconf_path} && make"
-    command = "{ruby_bin_path} {lib_string} {extconf_path} && make"
+    command = "{ruby_bin_path} {import_paths_string} {extconf_path} && make"
 
     command = command.format(
         make_dir = make_dir.path, 
         ruby_bin_path = ruby_bin_path, 
-        lib_string = lib_string,
+        import_paths_string = import_paths_string,
         extconf_path = ext_conf.path
     )
 
