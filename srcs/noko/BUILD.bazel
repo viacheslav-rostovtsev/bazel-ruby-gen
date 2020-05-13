@@ -1,5 +1,6 @@
 load ("//ruby:ruby_binary.bzl", "ruby_binary")
 load ("//ruby:ruby_gem_library.bzl", "ruby_gem_library")
+load ("//ruby:ruby_nokogiri.bzl", "ruby_nokogiri_lib")
 
 #noko
 ruby_binary(
@@ -8,14 +9,24 @@ ruby_binary(
   deps =[":lib_noko"],
 )
 
+ruby_nokogiri_lib(
+  name = "lib_noko",
+  srcs = ["@nokogiri//:gem_filegroup"],
+  wrapper = ":noko_wrapper.rb",
+  deps = [":lib_mini_portile2"],
+  lib_roots = "@nokogiri//:gem_libroots",
+  ext_confs = "@nokogiri//:gem_extconfs",
+)
+
 #lib_noko
 ruby_gem_library(
-  name = "lib_noko",
+  name = "lib_noko_generic",
   gem_name = "nokogiri",
   srcs = ["@nokogiri//:gem_filegroup"],
   deps = [":lib_mini_portile2"],
   lib_roots = "@nokogiri//:gem_libroots",
   ext_confs = "@nokogiri//:gem_extconfs",
+  
 )
 
 #lib_mini_portile2
@@ -26,4 +37,3 @@ ruby_gem_library(
   lib_roots = "@mini_portile2//:gem_libroots",
   ext_confs = "@mini_portile2//:gem_extconfs",
 )
-

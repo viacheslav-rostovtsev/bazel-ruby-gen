@@ -89,7 +89,6 @@ dir_rule_ws(
       else:
           prebuilt_selection_log += "Prebuilt ruby @ {prebuilt_ruby}: execution failed code {res_code}; Error:\n{err}".format(prebuilt_ruby = prebuilt_ruby, res_code=res.return_code, err=res.stderr)
         
-
   if not working_prebuild_located:
     # if there aren't any suitable or working prebuilts download the sources and build one
     ctx.download_and_extract(
@@ -100,11 +99,27 @@ dir_rule_ws(
   
     # configuring no gem support, no docs and installing inside our workspace
     root_path = ctx.path(".")
-    _execute_and_check_result(ctx, ["./configure", "--disable-rubygems", "--disable-install-doc", "--prefix=%s" % root_path.realpath, "--with-ruby-version=ruby_bazel_libroot"], working_directory = srcs_dir, quiet = False)
+    opts = ["./configure",
+      "--disable-rubygems",
+      "--disable-install-doc",
+      "--prefix=%s" % root_path.realpath,
+      "--with-ruby-version=ruby_bazel_libroot"]
+    
+    _execute_and_check_result(ctx, opts, working_directory = srcs_dir, quiet = False)
     
     # nothing special about make and make install
     _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
+
+  # ctx.download(url = "https://rubygems.org/downloads/rainbow-3.0.0.gem", output="./rainbow-3.0.0.gem")
+
+  # res = ctx.execute(["bin/gem", "install", "--force", "--local", "rainbow-3.0.0.gem"], working_directory = ".")
+  # if res.return_code != 0:
+  #   ctx.file("gem_install_rainbow.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+
+  # res = ctx.execute(["bin/gem", "install", "mini_portile2"], working_directory = ".")
+  # if res.return_code != 0:
+  #   ctx.file("gem_install.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
 
   ctx.file("prebuilt_selection.log", prebuilt_selection_log)
   ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "")

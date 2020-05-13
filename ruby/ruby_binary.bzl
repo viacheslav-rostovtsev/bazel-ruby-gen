@@ -13,6 +13,7 @@ def _ruby_binary_impl(ctx):
   run_result_file = ctx.actions.declare_file(run_result_file_path)
 
   # entrypoint for our Ruby application
+  entrypoint_dir = ctx.file.entrypoint.dirname
   entrypoint_path = ctx.file.entrypoint.path
 
   #~
@@ -34,7 +35,7 @@ def _ruby_binary_impl(ctx):
 
   # From this depset we extract two things:
   # 1. We take all the lib directories and ext directories and add them to the path
-  deps_import_strings = []
+  deps_import_strings = ["-I " + entrypoint_dir]
   for dep in deps_set.to_list():
     deps_import_strings.append("-I " + dep.lib_path.dirname)
     if dep.ext_path:
@@ -52,7 +53,7 @@ def _ruby_binary_impl(ctx):
   ctx.actions.run_shell(
     tools = [ruby_bin], 
     inputs = all_inputs,
-    command="{ruby_bin} {imports} {entrypoint} > {ruby_run_result}".format(
+    command="{ruby_bin} -W0 -I $(pwd) {imports} {entrypoint} > {ruby_run_result}".format(
       ruby_bin = ruby_bin_path, 
       imports = import_paths_string, 
       entrypoint = entrypoint_path,
@@ -75,7 +76,7 @@ ruby_binary = rule(
   attrs = {
     "srcs": attr.label_list(allow_files = True),
     "ruby_context": attr.label(default = Label("//ruby/private:ruby_context")),
-    "entrypoint": attr.label( allow_single_file = True,),
+    "entrypoint": attr.label( allow_single_file = True),
     "deps": attr.label_list(
       providers = [RubyLibraryInfo],
     ),

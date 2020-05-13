@@ -4,9 +4,10 @@ RUN apt-get install strace -y
 
 RUN apt-get install less -y
 
-
 #RUN apt-get install gcc -y
 #RUN export CC=/usr/bin/gcc
+
+#RUN apt-get install zlib1g-dev -y
 
 WORKDIR /src
 COPY docker-entrypoint.sh .
