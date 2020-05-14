@@ -8,6 +8,13 @@ ruby_binary(
   deps =[":lib_rainbow"],
 )
 
+
+ruby_binary(
+  name = "raibow_presupplied",
+  entrypoint = "//srcs/gemmed:singlegem/singlegem.rb",
+#  deps =[":lib_rainbow"],
+)
+
 # run file with multiple gems dependencies
 ruby_binary (
   name = "multigem_sh",

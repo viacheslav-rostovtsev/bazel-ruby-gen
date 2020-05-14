@@ -59,11 +59,16 @@ dir_rule_ws(
 
 """.format(srcs_dir = srcs_dir)
 
+  tmp = "vendor"
+  _execute_and_check_result(ctx, ["mkdir", tmp], quiet = False)
+  for vendor_archive in ctx.attr.vendor_archives:
+    ctx.extract(archive = vendor_archive, stripPrefix = "vendor", output = tmp)
+
+
   # First try using the prebuilt version
   os_name = ctx.os.name
 
   prebuilt_selection_log = ""
-
   if len(ctx.attr.prebuilt_rubys) == 0:
     prebuilt_selection_log = "No prebuilt rubies supplied"
   else:
@@ -100,7 +105,9 @@ dir_rule_ws(
     # configuring no gem support, no docs and installing inside our workspace
     root_path = ctx.path(".")
     opts = ["./configure",
-      "--disable-rubygems",
+      #"--disable-rubygems",
+      "--with-openssl-dir=/usr",
+      "--with-zlib-dir=/usr",
       "--disable-install-doc",
       "--prefix=%s" % root_path.realpath,
       "--with-ruby-version=ruby_bazel_libroot"]
@@ -111,15 +118,19 @@ dir_rule_ws(
     _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
-  # ctx.download(url = "https://rubygems.org/downloads/rainbow-3.0.0.gem", output="./rainbow-3.0.0.gem")
+  ctx.download(url = "https://rubygems.org/downloads/rainbow-3.0.0.gem", output="./rainbow-3.0.0.gem")
+  res = ctx.execute(["bin/gem", "install", "--force", "--local", "rainbow-3.0.0.gem"], working_directory = ".")
+  if res.return_code != 0:
+    ctx.file("gem_install_rainbow.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
 
-  # res = ctx.execute(["bin/gem", "install", "--force", "--local", "rainbow-3.0.0.gem"], working_directory = ".")
-  # if res.return_code != 0:
-  #   ctx.file("gem_install_rainbow.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+  ctx.download(url = "https://rubygems.org/downloads/mini_portile2-2.4.0.gem", output="./mini_portile2-2.4.0.gem")
+  res = ctx.execute(["bin/gem", "install", "--force", "--local", "mini_portile2-2.4.0.gem"], working_directory = ".")
+  if res.return_code != 0:
+    ctx.file("gem_install_mini_portile.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
 
-  # res = ctx.execute(["bin/gem", "install", "mini_portile2"], working_directory = ".")
-  # if res.return_code != 0:
-  #   ctx.file("gem_install.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+  res = ctx.execute(["bin/gem", "install", "--force", "--local", "./vendor/cache/nokogiri-1.10.9.gem"], working_directory = ".")
+  if res.return_code != 0:
+    ctx.file("gem_install_noko.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
 
   ctx.file("prebuilt_selection.log", prebuilt_selection_log)
   ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "")
@@ -140,6 +151,7 @@ ruby_bin = repository_rule (
     "urls": attr.string_list(),
     "strip_prefix": attr.string(),
     "prebuilt_rubys": attr.label_list(allow_files = True, mandatory = False),
+    "vendor_archives": attr.label_list(allow_files = True, mandatory = False),
   }
 )
 

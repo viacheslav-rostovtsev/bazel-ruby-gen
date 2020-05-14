@@ -5,8 +5,13 @@ load ("//ruby:ruby_nokogiri.bzl", "ruby_nokogiri_lib")
 #noko
 ruby_binary(
   name = "noko_sh",
-  entrypoint = ":nokogiri.rb",
+  entrypoint = ":noko.rb",
   deps =[":lib_noko"],
+)
+
+ruby_binary(
+  name = "noko_presup_sh",
+  entrypoint = ":noko.rb",
 )
 
 ruby_nokogiri_lib(
