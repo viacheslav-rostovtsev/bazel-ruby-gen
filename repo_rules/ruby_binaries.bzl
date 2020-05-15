@@ -64,7 +64,6 @@ dir_rule_ws(
   for vendor_archive in ctx.attr.vendor_archives:
     ctx.extract(archive = vendor_archive, stripPrefix = "vendor", output = tmp)
 
-
   # First try using the prebuilt version
   os_name = ctx.os.name
 
@@ -118,19 +117,33 @@ dir_rule_ws(
     _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
-  ctx.download(url = "https://rubygems.org/downloads/rainbow-3.0.0.gem", output="./rainbow-3.0.0.gem")
-  res = ctx.execute(["bin/gem", "install", "--force", "--local", "rainbow-3.0.0.gem"], working_directory = ".")
-  if res.return_code != 0:
-    ctx.file("gem_install_rainbow.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+  #ctx.download(url = "https://rubygems.org/downloads/rainbow-3.0.0.gem", output="./rainbow-3.0.0.gem")
 
-  ctx.download(url = "https://rubygems.org/downloads/mini_portile2-2.4.0.gem", output="./mini_portile2-2.4.0.gem")
-  res = ctx.execute(["bin/gem", "install", "--force", "--local", "mini_portile2-2.4.0.gem"], working_directory = ".")
-  if res.return_code != 0:
-    ctx.file("gem_install_mini_portile.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+  ctx.report_progress("=======================================")
+  ctx.report_progress("Installing gems")
 
-  res = ctx.execute(["bin/gem", "install", "--force", "--local", "./vendor/cache/nokogiri-1.10.9.gem"], working_directory = ".")
-  if res.return_code != 0:
-    ctx.file("gem_install_noko.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+  for gem in  ctx.attr.gems_to_install:
+    ctx.report_progress("-------------------------------------")
+    ctx.report_progress("Installing gem: {gem}".format(gem=gem))
+
+    gem_path = "./vendor/cache/{gem}".format(gem=gem)
+    res = ctx.execute(["bin/gem", "install", "--force", "--local", gem_path], working_directory = ".")
+    if res.return_code != 0:
+      ctx.report_progress("failed to install")
+      log_path = "err_gem_install_{gem}.log".format(gem=gem)
+      ctx.file(log_path, "Gem {gem} install failed code {res_code}; Error:\n{err}".format(gem=gem, res_code=res.return_code, err=res.stderr))
+    else:
+      ctx.report_progress("install successful")
+
+  ctx.report_progress("=======================================")
+
+  # res = ctx.execute(["bin/gem", "install", "--force", "--local", "./vendor/cache/mini_portile2-2.4.0.gem"], working_directory = ".")
+  # if res.return_code != 0:
+  #   ctx.file("gem_install_mini_portile.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
+
+  # res = ctx.execute(["bin/gem", "install", "--force", "--local", "./vendor/cache/nokogiri-1.10.9.gem"], working_directory = ".")
+  # if res.return_code != 0:
+  #   ctx.file("gem_install_noko.log", "Gem install failed code {res_code}; Error:\n{err}".format(res_code=res.return_code, err=res.stderr))
 
   ctx.file("prebuilt_selection.log", prebuilt_selection_log)
   ctx.file("lib/ruby/ruby_bazel_libroot/.ruby_bazel_libroot", "")
@@ -152,6 +165,7 @@ ruby_bin = repository_rule (
     "strip_prefix": attr.string(),
     "prebuilt_rubys": attr.label_list(allow_files = True, mandatory = False),
     "vendor_archives": attr.label_list(allow_files = True, mandatory = False),
+    "gems_to_install": attr.string_list(),
   }
 )
 
