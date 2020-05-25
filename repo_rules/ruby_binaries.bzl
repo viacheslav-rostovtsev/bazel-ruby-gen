@@ -105,8 +105,10 @@ dir_rule_ws(
     root_path = ctx.path(".")
     opts = ["./configure",
       #"--disable-rubygems",
-      "--with-openssl-dir=/usr",
-      "--with-zlib-dir=/usr",
+      "--build=x86_64-linux-gnu",
+      "--enable-shared",
+      # "--with-openssl-dir=/usr",
+      # "--with-zlib-dir=/usr",
       "--disable-install-doc",
       "--prefix=%s" % root_path.realpath,
       "--with-ruby-version=ruby_bazel_libroot"]
@@ -114,7 +116,7 @@ dir_rule_ws(
     _execute_and_check_result(ctx, opts, working_directory = srcs_dir, quiet = False)
     
     # nothing special about make and make install
-    _execute_and_check_result(ctx, ["make"], working_directory = srcs_dir, quiet = False)
+    _execute_and_check_result(ctx, ["make", "-j", "8"], working_directory = srcs_dir, quiet = False)
     _execute_and_check_result(ctx, ["make", "install"], working_directory = srcs_dir, quiet = False)
 
   #ctx.download(url = "https://rubygems.org/downloads/rainbow-3.0.0.gem", output="./rainbow-3.0.0.gem")
